@@ -15,13 +15,13 @@
 #define FIFO_FILE_1  "/tmp/client_to_server_fifo"
 #define FIFO_FILE_2  "/tmp/server_to_client_fifo"
 
-void sentFile(int sockfd)
+void sentFile(int sockfd, char *mystring)
 { 
 	char buff[MAX]; // for read operation from file and used to sent operation 
  
 	// create file 
 	FILE *fp;
- 	fp=fopen("docNam","r");  // open file uses both stdio and stdin header files
+ 	fp=fopen(mystring,"r");  // open file uses both stdio and stdin header files
 	// file should be present at the program directory
 	if( fp == NULL )
 	{
@@ -103,8 +103,8 @@ int main()
 	{
 		read(client_to_server, buf1, 1000);
 		printf("Received: %s \n", buf1);
-
-		//sentFile(connfd); // After transfer close the socket 
+		
+		sentFile(connfd,buf1); // After transfer close the socket 
 	
 	}
 	

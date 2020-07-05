@@ -97,8 +97,8 @@ int main()
 	
 		write(client_to_server, str2, sizeof(str2));
 		
-		//recvFile(sockfd); 
- 		//close(sockfd); 
+		recvFile(sockfd); 
+ 		close(sockfd); 
 
 	}
 	

@@ -16,12 +16,14 @@
 #define FIFO_FILE_1  "/tmp/client_to_server_fifo"
 #define FIFO_FILE_2  "/tmp/server_to_client_fifo"
 
+
+
 void recvFile(int sockfd) 
 { 
  	char buff[MAX];  // to store message from client
  
  	FILE *fp;
- 	fp=fopen("received.txt","w"); // stores the file content in recieved.txt in the program directory
+ 	fp=fopen("receivedd.txt","w"); // stores the file content in recieved.txt in the program directory
  
  	if( fp == NULL )
 	{
@@ -34,11 +36,51 @@ void recvFile(int sockfd)
  
  	printf("File received successfully !! \n");
  	printf("New File created is received.txt !! \n");
+
+}
+
+
+void recvlist(int sockfd) 
+{ 
+ 	char buff[MAX];  // to store message from client
+ 
+ 	FILE *fp;
+ 	fp=fopen("List.txt","w"); // stores the file content in recieved.txt in the program directory
+ 
+ 	if( fp == NULL )
+	{
+  		printf("Error IN Opening File ");
+  		return ;
+ 	}
+ 
+ 	while( read(sockfd,buff,MAX) > 0 )
+  	fprintf(fp,"%s",buff);
+ 
+ 
+}
+
+
+int findName(char* clientSearch, char* serverResult)
+{
+  	FILE *filename=fopen("as.txt","r");
+  	char temp[256];
+  	bzero(temp,256);
+  	while (filename!=NULL && fgets(temp, sizeof(temp),filename) != NULL)
+    	{
+      		if (strstr(temp, clientSearch))
+    		{
+      			printf("temp is: %s", temp);
+      			strncpy(serverResult,temp, sizeof(temp));
+      			return 1;
+    		}
+    	}
+  	if (filename!=NULL) fclose(filename);
+  	return 0;
 }
 
 int main() 
 { 
-	int temp = 1;
+
  	int sockfd, connfd; 
  	struct sockaddr_in servaddr, cli;// socket create and varification 
  	sockfd = socket(AF_INET, SOCK_STREAM, 0); 
@@ -68,7 +110,8 @@ int main()
     	int client_to_server;
     	int server_to_client;
 
-    	char str[140];
+    	char str[240];
+	
 
 	printf(" \n");
 	printf("Choisisez entre les requetes suivantes.. \n");
@@ -80,15 +123,15 @@ int main()
     	str[strlen(str)-1] = '\0';
 	
 	
-
     	/* write str to the FIFO */
     	client_to_server = open(FIFO_FILE_1, O_WRONLY);
     	server_to_client = open(FIFO_FILE_2, O_RDONLY);
 
 	write(client_to_server, str, sizeof(str));
 	
-	char str2[1000];
-	if (*str = 1)
+	char str2[240];
+
+	if (*str = 1)//First Function
 	{
 		
 		printf("Quelle document souhaitez vous recuperez : ");
@@ -99,9 +142,46 @@ int main()
 		
 		recvFile(sockfd); 
  		close(sockfd); 
+		
+	}
+	
+	if (*str = 2)
+	{
+		recvFile(sockfd); //Receiving list file which contain names of all files on the server
+ 		close(sockfd); 
+
+		
+		FILE *fptr; 
+  
+    		char filename[100], c; 
+  
+  
+    		// Open file 
+    		fptr = fopen("list", "r"); 
+    		if (fptr == NULL) 
+    		{ 
+        		printf("Cannot open file \n"); 
+        		exit(0); 
+    		}
+
+		printf("\n");
+		printf("The Server contains files named : \n"); 
+  
+    		// Read contents from file 
+    		c = fgetc(fptr); 
+    		while (c != EOF) 
+    		{ 
+        		printf ("%c", c); 
+        		c = fgetc(fptr); 
+    		} 
+  
+    		fclose(fptr); 
+    		return 0;
+
 
 	}
 	
+ 	
 	
 	close(client_to_server);
     	close(server_to_client);

@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
 #define MAX 100
 #define PORT 8080 
 #define SA struct sockaddr
@@ -36,6 +37,8 @@ void sentFile(int sockfd, char *mystring)
  
  	printf("File Sent successfully !!! \n"); 
 }
+
+
 
 int main() 
 {
@@ -99,7 +102,7 @@ int main()
         read(client_to_server, buf, BUFSIZ);
 	printf("Received: %s \n", buf);
 	
-	if (*buf = 1)
+	*if (*buf = 1)
 	{
 		read(client_to_server, buf1, 1000);
 		printf("Received: %s \n", buf1);
@@ -107,7 +110,15 @@ int main()
 		sentFile(connfd,buf1); // After transfer close the socket 
 	
 	}
+
 	
+	if (*buf = 2) //Function to Display the content of the server directory
+	{
+		char list_name[240] = "list"; // list is the name of the file that contains the names of all files on the server
+		sentFile(connfd,list_name); // list file is being send to client
+	}
+	
+
 	memset(buf, 0, sizeof(buf));
 
 	close(client_to_server);
@@ -116,8 +127,6 @@ int main()
 	unlink(FIFO_FILE_1);
    	unlink(FIFO_FILE_2);
 
-
-	//sentFile(connfd);  // After transfer close the socket 
 	
  
 }

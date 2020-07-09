@@ -23,7 +23,7 @@ void recvFile(int sockfd)
  	char buff[MAX];  // to store message from client
  
  	FILE *fp;
- 	fp=fopen("receivedd.txt","w"); // stores the file content in recieved.txt in the program directory
+ 	fp=fopen("received.txt","w"); // stores the file content in recieved.txt in the program directory
  
  	if( fp == NULL )
 	{
@@ -39,50 +39,19 @@ void recvFile(int sockfd)
 
 }
 
-
-void recvlist(int sockfd) 
-{ 
- 	char buff[MAX];  // to store message from client
- 
- 	FILE *fp;
- 	fp=fopen("List.txt","w"); // stores the file content in recieved.txt in the program directory
- 
- 	if( fp == NULL )
-	{
-  		printf("Error IN Opening File ");
-  		return ;
- 	}
- 
- 	while( read(sockfd,buff,MAX) > 0 )
-  	fprintf(fp,"%s",buff);
- 
- 
+void list(int sockfd)
+{	
+	char buff[MAX];
+	while( read(sockfd,buff,MAX) > 0 )
+  	printf("%s \n",buff);
 }
 
-
-int findName(char* clientSearch, char* serverResult)
-{
-  	FILE *filename=fopen("as.txt","r");
-  	char temp[256];
-  	bzero(temp,256);
-  	while (filename!=NULL && fgets(temp, sizeof(temp),filename) != NULL)
-    	{
-      		if (strstr(temp, clientSearch))
-    		{
-      			printf("temp is: %s", temp);
-      			strncpy(serverResult,temp, sizeof(temp));
-      			return 1;
-    		}
-    	}
-  	if (filename!=NULL) fclose(filename);
-  	return 0;
-}
 
 int main() 
 { 
 
  	int sockfd, connfd; 
- 	struct sockaddr_in servaddr, cli;// socket create and varification 
+ 	struct sockaddr_in servaddr, cli; // socket create and varification 
  	sockfd = socket(AF_INET, SOCK_STREAM, 0); 
 
  	if (sockfd == -1) 
@@ -93,10 +62,10 @@ int main()
  	else
   		printf("Socket successfully created..\n"); 
  
- 	bzero(&servaddr, sizeof(servaddr));// assign IP, PORT 
+ 	bzero(&servaddr, sizeof(servaddr)); // assign IP, PORT 
  	servaddr.sin_family = AF_INET; 
  	servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); 
- 	servaddr.sin_port = htons(PORT);// connect the client socket to server socket 
+ 	servaddr.sin_port = htons(PORT); // connect the client socket to server socket 
  	
 	if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) 
 	{ 
@@ -104,7 +73,7 @@ int main()
   		exit(0); 
  	} 
  	else
-  		printf("connected to the server..\n");// function for sending File 
+  		printf("connected to the server..\n"); // function for sending File 
  
 	system("clear");
     	int client_to_server;
@@ -112,7 +81,7 @@ int main()
 
     	char str[240];
 	
-
+	printf("\033[1;35m");
 	printf(" \n");
 	printf("Choisisez entre les requetes suivantes.. \n");
 	printf("1) Obtenir un document disponible sur le serveur \n");
@@ -121,7 +90,7 @@ int main()
 	printf("Votre choix : ");
 	fgets(str,sizeof(str),stdin);
     	str[strlen(str)-1] = '\0';
-	
+	printf("\033[0m");
 	
     	/* write str to the FIFO */
     	client_to_server = open(FIFO_FILE_1, O_WRONLY);
@@ -131,8 +100,13 @@ int main()
 	
 	char str2[240];
 
-	if (*str = 1)//First Function
+	int temp;
+	temp = *str; //storing the decimal value pointed in the variable temp
+	// char 1 = 49, 2 = 50, 3 = 51
+
+	if (temp == 49)
 	{
+		printf("\n");
 		
 		printf("Quelle document souhaitez vous recuperez : ");
 		fgets(str2,sizeof(str2),stdin);
@@ -145,43 +119,36 @@ int main()
 		
 	}
 	
-	if (*str = 2)
+	else if (temp == 50)
 	{
-		recvFile(sockfd); //Receiving list file which contain names of all files on the server
- 		close(sockfd); 
-
-		
-		FILE *fptr; 
-  
-    		char filename[100], c; 
-  
-  
-    		// Open file 
-    		fptr = fopen("list", "r"); 
-    		if (fptr == NULL) 
-    		{ 
-        		printf("Cannot open file \n"); 
-        		exit(0); 
-    		}
-
-		printf("\n");
-		printf("The Server contains files named : \n"); 
-  
-    		// Read contents from file 
-    		c = fgetc(fptr); 
-    		while (c != EOF) 
-    		{ 
-        		printf ("%c", c); 
-        		c = fgetc(fptr); 
-    		} 
-  
-    		fclose(fptr); 
-    		return 0;
-
-
+		list(sockfd); // Calling the function to display the files
 	}
+
+	else if (temp == 51) //Delete file option
+	{
+		printf("\n");
+		
+		printf("Quelle document souhaitez vous supprimer : ");
+		fgets(str2,sizeof(str2),stdin);
+    		str2[strlen(str2)-1] = '\0';
 	
- 	
+		write(client_to_server, str2, sizeof(str2));
+		
+		char bufff[1000];
+		read(client_to_server, bufff, BUFSIZ);
+		if (*bufff == 49)
+			printf("Deleted successfully\n");
+		else 
+			printf("Failed to delete file\n");
+	}
+
+	else
+	{
+		printf("\n");		
+		printf("\033[1;31m");
+		printf("Vous avez entré une valeur invalide! \n");
+		printf("\033[0m");
+	} 	
 	
 	close(client_to_server);
     	close(server_to_client);

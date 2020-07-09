@@ -38,6 +38,55 @@ void sentFile(int sockfd, char *mystring)
  	printf("File Sent successfully !!! \n"); 
 }
 
+void list(int sockfd)
+{
+	struct dirent *de;  // Pointer for directory entry 
+  
+    	// opendir() returns a pointer of DIR type.  
+	
+
+	char cwd[PATH_MAX];
+  	if (getcwd(cwd, sizeof(cwd)) != NULL) 
+	{
+		
+   		DIR *dr = opendir(cwd); 
+  
+    		if (dr == NULL)  // opendir returns NULL if couldn't open directory 
+    		{ 
+        		printf("Could not open current directory" ); 
+    		}
+
+		char buff1[MAX]; 
+
+    		while ((de = readdir(dr)) != NULL)
+		{
+            		write(sockfd,de->d_name,sizeof(buff1));
+  		}
+    		closedir(dr);
+
+	} 
+	else 
+	{
+       		perror("getcwd() error");
+   	}
+   
+}
+
+void deletefile(int sockfd, char *mystring1) 
+{
+   	if (remove(mystring1) == 0)
+	{
+		char output[1000]= "1"; 
+		printf("Deleted successfully \n");
+		write(sockfd,output,sizeof(output));
+	} 
+   	else
+	{
+		char output[1000]= "2"; 
+      		printf("Unable to delete the file \n");
+		write(sockfd,output,sizeof(output));
+	}
+} 
 
 
 int main() 
@@ -47,6 +96,8 @@ int main()
     	int server_to_client;   	
 	char buf[BUFSIZ];
 	char buf1[1000];
+	char buf2[1000];
+	
     	/* create the FIFO (named pipe) */
     	mkfifo(FIFO_FILE_1, 0666);
     	mkfifo(FIFO_FILE_2, 0666);
@@ -100,22 +151,37 @@ int main()
        	server_to_client = open(FIFO_FILE_2, O_WRONLY);
 
         read(client_to_server, buf, BUFSIZ);
-	printf("Received: %s \n", buf);
+
+	int temp;
+	temp = *buf; //storing the decimal value pointed in the variable temp
+	// char 1 = 49, 2 = 50, 3 = 51
 	
-	*if (*buf = 1)
+	printf("\n");
+
+	if (temp == 49)
 	{
 		read(client_to_server, buf1, 1000);
-		printf("Received: %s \n", buf1);
+		printf("File to be transfered : %s \n", buf1);
 		
-		sentFile(connfd,buf1); // After transfer close the socket 
+		sentFile(connfd,buf1); // Calling the function
 	
 	}
-
 	
-	if (*buf = 2) //Function to Display the content of the server directory
+	
+	if (temp == 50) //Function to Display the content of the server directory
 	{
-		char list_name[240] = "list"; // list is the name of the file that contains the names of all files on the server
-		sentFile(connfd,list_name); // list file is being send to client
+
+		list(connfd);//Calling the function list to display all the files 
+	}
+
+
+	if (temp == 51)
+	{
+		read(client_to_server, buf2, 1000);
+		printf("File to be deleted : %s \n", buf2);
+
+		deletefile(connfd, buf2); //Calling the delete file function
+		
 	}
 	
 

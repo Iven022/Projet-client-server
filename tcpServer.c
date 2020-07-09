@@ -125,7 +125,7 @@ int main()
   		exit(0); 
  	} 
  	else
-  		printf("Socket successfully binded..\n");// Now server is ready to listen and verification 
+  		printf("Socket successfully binded...\n");// Now server is ready to listen and verification 
  	
 	if ((listen(sockfd, 5)) != 0) 
 	{ 
@@ -133,7 +133,7 @@ int main()
   		exit(0); 
  	} 
  	else
-  		printf("Server listening..\n"); 
+  		printf("Server listening...\n"); 
  
  	len = sizeof(cli); // Accept the data packet from client and verification 
  	connfd = accept(sockfd, (SA*)&cli, &len);  // accepts connection from socket

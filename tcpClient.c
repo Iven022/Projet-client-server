@@ -83,7 +83,7 @@ int main()
 	
 	printf("\033[1;35m");
 	printf(" \n");
-	printf("Choisisez entre les requetes suivantes.. \n");
+	printf("Choisisez entre les requetes suivantes : \n");
 	printf("1) Obtenir un document disponible sur le serveur \n");
 	printf("2) Obtenir la liste des documents disponibles sur le serveur \n");
 	printf("3) Supprimer de la liste un document du serveur \n");
